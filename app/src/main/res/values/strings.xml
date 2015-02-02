@@ -7,5 +7,6 @@
     <string name="call_button">Call 911</string>
     <string name="web_button">Web</string>
     <string name="map_button">Map</string>
+    <string name="email_button">email</string>
 
 </resources>
