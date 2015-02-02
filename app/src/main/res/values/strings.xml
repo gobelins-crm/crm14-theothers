@@ -8,5 +8,7 @@
     <string name="web_button">Web</string>
     <string name="map_button">Map</string>
     <string name="email_button">email</string>
+    <string name="send_button">send</string>
+    <string name="chooser_title">Partager ce texte...</string>
 
 </resources>

@@ -24,6 +24,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         findViewById(R.id.button_map).setOnClickListener(this);
         findViewById(R.id.button_web).setOnClickListener(this);
         findViewById(R.id.button_email).setOnClickListener(this);
+        findViewById(R.id.button_send).setOnClickListener(this);
     }
 
 
@@ -64,7 +65,21 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             case R.id.button_email:
                 performEmailIntent();
                 break;
+            case R.id.button_send:
+                performSendIntent();
+                break;
         }
+    }
+
+    private void performSendIntent() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+
+        intent.putExtra(Intent.EXTRA_TITLE, "Mon titre");
+        intent.putExtra(Intent.EXTRA_TEXT, "Mon texte");
+        intent.setType("text/plain");
+
+        Intent chooser = Intent.createChooser(intent, getString(R.string.chooser_title));
+        startActivity(chooser);
     }
 
     private void performEmailIntent() {
