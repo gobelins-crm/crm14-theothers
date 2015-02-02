@@ -1,17 +1,24 @@
 package crm.gobelins.theothers;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        findViewById(R.id.button_call).setOnClickListener(this);
+        findViewById(R.id.button_map).setOnClickListener(this);
+        findViewById(R.id.button_web).setOnClickListener(this);
     }
 
 
@@ -35,5 +42,38 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_call:
+                performCallIntent();
+                break;
+            case R.id.button_map:
+                performMapIntent();
+                break;
+            case R.id.button_web:
+                performWebIntent();
+                break;
+        }
+    }
+
+    private void performWebIntent() {
+        Uri address = Uri.parse("http://ddg.gg/");
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, address);
+        startActivity(webIntent);
+    }
+
+    private void performMapIntent() {
+        Uri location = Uri.parse("geo:0,0?q=La+Clusaz");
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, location);
+        startActivity(mapIntent);
+    }
+
+    private void performCallIntent() {
+        Uri number = Uri.parse("tel:911");
+        Intent callIntent = new Intent(Intent.ACTION_DIAL, number);
+        startActivity(callIntent);
     }
 }
