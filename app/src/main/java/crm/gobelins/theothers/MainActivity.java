@@ -3,28 +3,46 @@ package crm.gobelins.theothers;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
+    private static final int REQUEST_IMAGE_CAPTURE = 12;
+    private ImageView mImageView;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (REQUEST_IMAGE_CAPTURE == requestCode) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mImageView.setImageBitmap(imageBitmap);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mImageView = (ImageView) findViewById(R.id.thumbnail);
 
         findViewById(R.id.button_call).setOnClickListener(this);
         findViewById(R.id.button_map).setOnClickListener(this);
         findViewById(R.id.button_web).setOnClickListener(this);
         findViewById(R.id.button_email).setOnClickListener(this);
         findViewById(R.id.button_send).setOnClickListener(this);
+        findViewById(R.id.button_photo).setOnClickListener(this);
     }
 
 
@@ -68,7 +86,18 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             case R.id.button_send:
                 performSendIntent();
                 break;
+            case R.id.button_photo:
+                performPhotoIntent();
+                break;
         }
+    }
+
+    private void performPhotoIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+
     }
 
     private void performSendIntent() {
