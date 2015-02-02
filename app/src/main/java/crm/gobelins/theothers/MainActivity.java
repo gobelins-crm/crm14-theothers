@@ -4,15 +4,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -20,13 +25,21 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private static final int REQUEST_IMAGE_CAPTURE = 12;
     private ImageView mImageView;
+    private ShareActionProvider mShareActionProvider;
+    private Uri mImageUri;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (REQUEST_IMAGE_CAPTURE == requestCode) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+        if (RESULT_OK == resultCode && REQUEST_IMAGE_CAPTURE == requestCode) {
+
+            Bitmap imageBitmap = getThumbnailBitmap(mImageUri, mImageView.getWidth(), mImageView.getHeight());
             mImageView.setImageBitmap(imageBitmap);
+
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("image/jpeg");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, mImageUri);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "title");
+            mShareActionProvider.setShareIntent(sendIntent);
         }
     }
 
@@ -50,6 +63,13 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+
         return true;
     }
 
@@ -93,9 +113,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     private void performPhotoIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        Intent photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (photoIntent.resolveActivity(getPackageManager()) != null) {
+            mImageUri = Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "theothers_" +
+                    String.valueOf(System.currentTimeMillis()) + ".jpg"));
+            photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+            startActivityForResult(photoIntent, REQUEST_IMAGE_CAPTURE);
         }
 
     }
@@ -140,5 +163,22 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         if (activities.size() > 0) {
             startActivity(callIntent);
         }
+    }
+
+    private Bitmap getThumbnailBitmap(Uri uri, int width, int height) {
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(uri.getPath(), bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW / width, photoH / height);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+
+        return BitmapFactory.decodeFile(uri.getPath(), bmOptions);
     }
 }

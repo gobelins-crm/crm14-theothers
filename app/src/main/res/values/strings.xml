@@ -11,5 +11,6 @@
     <string name="send_button">send</string>
     <string name="chooser_title">Partager ce texte...</string>
     <string name="photo_button">photo</string>
+    <string name="share_action">Share</string>
 
 </resources>
