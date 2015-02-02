@@ -1,12 +1,16 @@
 package crm.gobelins.theothers;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener {
@@ -86,6 +90,11 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private void performCallIntent() {
         Uri number = Uri.parse("tel:911");
         Intent callIntent = new Intent(Intent.ACTION_DIAL, number);
-        startActivity(callIntent);
+
+        PackageManager pm = getPackageManager();
+        List<ResolveInfo> activities = pm.queryIntentActivities(callIntent, 0 /*Or PackageManager.MATCH_DEFAULT_ONLY*/);
+        if (activities.size() > 0) {
+            startActivity(callIntent);
+        }
     }
 }
